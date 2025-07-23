@@ -1,0 +1,158 @@
+﻿@model AdminDashboardApp.Models.RekapViewModel
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "Rekapan";
+}
+
+<div class="container-fluid mt-3 px-4">
+    <h2 class="mb-4">Rekapan Peminjaman Alat Tahun @DateTime.Now.Year</h2>
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5 class="card-title">Rekap Peminjaman Alat per Bulan</h5>
+                <canvas id="peminjamanChart" height="320" style="max-height: 340px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5 class="card-title d-flex justify-content-between align-items-center">
+                    <span>Rekap Jumlah Peminjaman per Bagian</span>
+                    <form method="get" asp-action="Index" class="d-inline-block">
+                        <select name="fungsiId" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                            <option value="">Semua Fungsi</option>
+                            @foreach (var f in Model.FungsiList)
+                            {
+                                var selected = f.FungsiId == Model.SelectedFungsiId ? "selected" : "";
+                                @:<option value="@f.FungsiId" @selected>@f.NamaFungsi</option>
+                            }
+                        </select>
+                    </form>
+                </h5>
+
+                @if (Model.RekapPeminjamanPerBagian != null && Model.RekapPeminjamanPerBagian.Count > 0)
+                {
+                    <canvas id="bagianChart" height="250"></canvas>
+                }
+                else
+                {
+                    <p class="text-muted">(Data belum tersedia)</p>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3" style="height: 300px;">
+                <h5 class="card-title">Rekap Jumlah Jadwal Kerja Teknisi</h5>
+                <canvas id="teknisiChart" height="180" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+    <script>
+        // Grafik peminjaman per bulan
+        const peminjamanCtx = document.getElementById('peminjamanChart').getContext('2d');
+        new Chart(peminjamanCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.RekapPeminjamanPerBulan.Select(x => x.Bulan))),
+                datasets: [{
+                    label: 'Jumlah Peminjaman',
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.RekapPeminjamanPerBulan.Select(x => x.JumlahPeminjaman))),
+                    backgroundColor: '#ff9933'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Warna untuk 78 bagian
+        const warnaBagian = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#EC407A', '#42A5F5',
+            '#66BB6A', '#FFA726', '#AB47BC', '#26C6DA', '#EF5350', '#7E57C2', '#26A69A', '#5C6BC0',
+            '#8D6E63', '#789262', '#BA68C8', '#AED581', '#DCE775', '#FF8A65', '#A1887F', '#80DEEA',
+            '#B39DDB', '#90CAF9', '#B3E5FC', '#B2DFDB', '#FFCCBC', '#F48FB1', '#CE93D8', '#F06292',
+            '#81D4FA', '#4DB6AC', '#FFB74D', '#9575CD', '#4FC3F7', '#E57373', '#7986CB', '#D4E157',
+            '#FDD835', '#C5E1A5', '#00ACC1', '#00E676', '#FFC107', '#F4511E', '#5E35B1', '#FBC02D',
+            '#E91E63', '#1E88E5', '#43A047', '#D32F2F', '#3949AB', '#8E24AA', '#00897B', '#F57C00',
+            '#C2185B', '#7B1FA2', '#0288D1', '#689F38', '#AFB42B', '#EF6C00', '#6D4C41', '#607D8B',
+            '#00ACC1', '#8D6E63', '#0097A7', '#F9A825', '#C0CA33', '#CDDC39', '#FF5252', '#8BC34A',
+            '#9C27B0', '#03A9F4', '#4CAF50', '#FFEB3B', '#FF9800', '#E040FB', '#1DE9B6'
+        ];
+
+        // Grafik peminjaman per bagian
+        @if (Model.RekapPeminjamanPerBagian != null && Model.RekapPeminjamanPerBagian.Count > 0)
+        {
+            <text>
+                const bagianCtx = document.getElementById('bagianChart').getContext('2d');
+                new Chart(bagianCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(JsonConvert.SerializeObject(Model.RekapPeminjamanPerBagian.Select(x => x.NamaBagian))),
+                        datasets: [{
+                            label: 'Jumlah Peminjaman',
+                            data: @Html.Raw(JsonConvert.SerializeObject(Model.RekapPeminjamanPerBagian.Select(x => x.JumlahPeminjaman))),
+                            backgroundColor: warnaBagian.slice(0, @Model.RekapPeminjamanPerBagian.Count)
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            </text>
+        }
+
+        // Grafik pie teknisi
+        const teknisiCtx = document.getElementById('teknisiChart').getContext('2d');
+        new Chart(teknisiCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(JsonConvert.SerializeObject(Model.RekapJadwalTeknisi.Select(x => x.NamaTeknisi))),
+                datasets: [{
+                    label: 'Jumlah Jadwal',
+                    data: @Html.Raw(JsonConvert.SerializeObject(Model.RekapJadwalTeknisi.Select(x => x.JumlahJadwal))),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#5cb85c', '#f0ad4e', '#d9534f']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Rekap Jumlah Jadwal Teknisi Bulan Ini'
+                    },
+                    legend: {
+                        position: 'right'
+                    },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold' },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    </script>
+}

@@ -1,0 +1,190 @@
+﻿@model AdminDashboardApp.Models.JadwalTeknisi
+@using AdminDashboardApp.Controllers
+
+@{
+    ViewData["Title"] = "Edit Jadwal";
+    var selectedTeknisi = (IEnumerable<int>)(ViewData["SelectedTeknisiIds"] ?? Enumerable.Empty<int>());
+    var selectedSupport = (IEnumerable<int>)(ViewData["SelectedSupportIds"] ?? Enumerable.Empty<int>());
+    var teknisiVmList = ViewBag.TeknisiSelectVmList as IEnumerable<TeknisiSelectVm>;
+}
+
+<h2>Edit Jadwal</h2>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="JadwalTeknisiId" />
+
+    <!-- Nama Kegiatan -->
+    <div class="mb-2">
+        <label asp-for="NamaKegiatan"></label>
+        <input asp-for="NamaKegiatan" class="form-control" />
+        <span asp-validation-for="NamaKegiatan" class="text-danger"></span>
+    </div>
+
+    <!-- Tanggal -->
+    <div class="mb-2">
+        <label asp-for="Tanggal"></label>
+        <input asp-for="Tanggal" type="date" class="form-control" />
+        <span asp-validation-for="Tanggal" class="text-danger"></span>
+    </div>
+
+    <!-- Jam Mulai -->
+    <div class="mb-2">
+        <label asp-for="JamMulai"></label>
+        <input asp-for="JamMulai" type="time" class="form-control" step="60" id="JamMulai" />
+        <span asp-validation-for="JamMulai" class="text-danger"></span>
+    </div>
+
+    <!-- Jam Selesai -->
+    <div class="mb-2">
+        <label asp-for="JamSelesai"></label>
+        <input asp-for="JamSelesai" type="time" class="form-control" step="60" id="JamSelesaiInput" />
+        <span asp-validation-for="JamSelesai" class="text-danger"></span>
+        <span id="JamSelesaiError" class="text-danger small d-block mt-1" style="display:none;">Jam selesai tidak boleh sebelum jam mulai.</span>
+    </div>
+
+    <!-- Teknisi -->
+    <div class="mb-3">
+        <label class="fw-bold">Teknisi</label>
+        @if (teknisiVmList?.Any() == true)
+        {
+            foreach (var item in teknisiVmList)
+            {
+                var isChecked = selectedTeknisi.Contains(item.TeknisiId);
+                <div class="form-check">
+                    <input type="checkbox" name="SelectedTeknisiIds" value="@item.TeknisiId" class="form-check-input" id="tek_@item.TeknisiId" @(isChecked ? "checked" : null) />
+                    <label class="form-check-label" for="tek_@item.TeknisiId">
+                        @item.Nama @if (item.CountAcaraHariItu > 0) {
+                        <span class="text-muted small">(Sudah di @item.CountAcaraHariItu acara)</span>
+                    }
+                </label>
+            </div>
+        }
+                }
+                else
+        {
+
+            <p class="text-muted">Tidak ada data teknisi.</p>
+        }
+    </div>
+
+    <!-- Jenis Support -->
+    <div class="mb-3">
+        <label class="fw-bold">Jenis Support</label>
+        @if (ViewBag.JenisSupportList is MultiSelectList jenisList)
+        {
+            foreach (var item in jenisList)
+            {
+                var isChecked = selectedSupport.Contains(int.Parse(item.Value ?? "0"));
+                <div class="form-check">
+                    <input type="checkbox" name="SelectedSupportIds" value="@item.Value" class="form-check-input" id="sup_@item.Value" @(isChecked ? "checked" : null) />
+                    <label class="form-check-label" for="sup_@item.Value">@item.Text</label>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Ruang Rapat -->
+    <div class="mb-2">
+        <label asp-for="RuangRapatId"></label>
+        <select asp-for="RuangRapatId" class="form-control" asp-items="ViewBag.RuangRapatId">
+            <option value="">-- Pilih Ruang Rapat --</option>
+        </select>
+        <span asp-validation-for="RuangRapatId" class="text-danger"></span>
+    </div>
+
+    <!-- Fungsi -->
+    <div class="mb-2">
+        <label asp-for="FungsiId">Fungsi</label>
+        <select asp-for="FungsiId" class="form-control" asp-items="ViewBag.FungsiList" id="FungsiId">
+            <option value="">-- Pilih Fungsi --</option>
+        </select>
+        <span asp-validation-for="FungsiId" class="text-danger"></span>
+    </div>
+
+    <!-- Bagian -->
+    <div class="mb-2">
+        <label asp-for="BagianId">Bagian</label>
+        <select asp-for="BagianId" class="form-control" id="BagianId">
+            <option value="">-- Pilih Bagian --</option>
+        </select>
+        <span asp-validation-for="BagianId" class="text-danger"></span>
+    </div>
+
+    <!-- User Nama -->
+    <div class="mb-2">
+        <label asp-for="UserNama"></label>
+        <input asp-for="UserNama" class="form-control" />
+        <span asp-validation-for="UserNama" class="text-danger"></span>
+    </div>
+
+    <!-- User Kontak -->
+    <div class="mb-2">
+        <label asp-for="UserKontak"></label>
+        <input asp-for="UserKontak" class="form-control" />
+        <span asp-validation-for="UserKontak" class="text-danger"></span>
+    </div>
+
+    <!-- Status -->
+    <div class="mb-2">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control" asp-items="ViewBag.StatusList"></select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary ms-1">Kembali</a>
+</form>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            const fungsiId = parseInt($('#FungsiId').val()) || parseInt('@(Model.FungsiId ?? 0)');
+            const selectedBagianId = parseInt('@(Model.BagianId ?? 0)') || null;
+
+            console.log("FungsiId saat load:", fungsiId);
+            console.log("Selected BagianId:", selectedBagianId);
+
+            function loadBagian(fungsiId, selectedId) {
+                if (fungsiId) {
+                    $.get('/Jadwal/GetBagianByFungsi', { fungsiId: fungsiId })
+                        .done(function (data) {
+                            const $bagian = $('#BagianId');
+                            $bagian.empty().append('<option value="">-- Pilih Bagian --</option>');
+                            $.each(data, function (i, bagian) {
+                                const selected = (parseInt(bagian.id) === selectedId) ? 'selected' : '';
+                                $bagian.append('<option value="' + bagian.id + '" ' + selected + '>' + bagian.nama + '</option>');
+                            });
+                        })
+                        .fail(function () {
+                            alert('Gagal memuat data bagian. Coba refresh halaman.');
+                        });
+                } else {
+                    $('#BagianId').empty().append('<option value="">-- Pilih Bagian --</option>');
+                }
+            }
+
+            // Load otomatis saat halaman edit dibuka
+            loadBagian(fungsiId, selectedBagianId);
+
+            // Load ulang saat dropdown fungsi berubah
+            $('#FungsiId').change(function () {
+                loadBagian(parseInt($(this).val()), null);
+            });
+
+            // Validasi jam selesai tidak boleh sebelum jam mulai
+            $('#JamSelesaiInput, #JamMulai').on('change', function () {
+                const jamMulai = $('#JamMulai').val();
+                const jamSelesai = $('#JamSelesaiInput').val();
+                if (jamMulai && jamSelesai && jamSelesai < jamMulai) {
+                    $('#JamSelesaiError').show();
+                } else {
+                    $('#JamSelesaiError').hide();
+                }
+            });
+        });
+    </script>
+}

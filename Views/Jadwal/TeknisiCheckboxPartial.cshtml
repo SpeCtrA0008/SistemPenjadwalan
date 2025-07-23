@@ -1,0 +1,29 @@
+﻿@model IEnumerable<AdminDashboardApp.Controllers.TeknisiSelectVm>
+@{
+    // Ambil teknisi yang sebelumnya dipilih dari ViewData jika ada
+    var selectedIds = ViewData["SelectedTeknisiIds"] as IEnumerable<int> ?? Enumerable.Empty<int>();
+}
+
+@if (Model.Any())
+{
+    foreach (var t in Model)
+    {
+        var isChecked = selectedIds.Contains(t.TeknisiId);
+        <div class="form-check">
+            <input type="checkbox" name="SelectedTeknisiIds" value="@t.TeknisiId"
+                   class="form-check-input" id="teknisi_@t.TeknisiId"
+                   @(isChecked ? "checked" : "") />
+            <label class="form-check-label" for="teknisi_@t.TeknisiId">
+                @t.Nama
+                @if (t.CountAcaraHariItu > 0)
+                {
+                    <span class="text-warning ms-1 small">(Sudah di @t.CountAcaraHariItu acara hari ini)</span>
+                }
+            </label>
+        </div>
+    }
+}
+else
+{
+    <p class="text-muted">Tidak ada teknisi tersedia.</p>
+}
