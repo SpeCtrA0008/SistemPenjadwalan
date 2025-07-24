@@ -45,6 +45,11 @@
         line-height: 1.6;
     }
 
+    h5.fw-bold {
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
         .card-body-custom p {
             margin-bottom: 6px;
         }
@@ -54,7 +59,6 @@
     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
         <h2 class="fw-bold mb-2">Jadwal Harian</h2>
         <div class="d-flex align-items-center gap-2 mb-2">
-            <span class="fw-semibold">Halo, Yusnita 👋</span>
             <a href="@Url.Action("Create", "Jadwal")" class="btn btn-primary">+ Tambah</a>
         </div>
     </div>
@@ -137,7 +141,12 @@
     }
     else
     {
-        var sortedModel = Model.OrderBy(j => j.Tanggal).ThenBy(j => j.JamMulai);
+        var sortedModel = Model
+        .Where(j => j.Tanggal.HasValue)
+        .OrderByDescending(j => j.Tanggal >= DateTime.Today)
+        .ThenBy(j => j.Tanggal)
+        .ThenBy(j => j.JamMulai);
+
 
         <div class="row">
             @foreach (var item in sortedModel)

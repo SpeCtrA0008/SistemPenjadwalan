@@ -37,20 +37,38 @@ namespace AdminDashboardApp.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
+            // Filter bulan masih bisa dijalankan di SQL
             if (bulan.HasValue)
+            {
                 query = query.Where(d => d.Tanggal.HasValue && d.Tanggal.Value.Month == bulan.Value);
+            }
 
-            if (minggu.HasValue)
-                query = query.Where(d => d.Tanggal.HasValue && GetWeekOfMonth(d.Tanggal.Value) == minggu.Value);
-
+            // Pindah ke memory sebelum filter hari
             if (!string.IsNullOrWhiteSpace(hari))
-                query = query.Where(d => d.Tanggal.HasValue &&
-                    d.Tanggal.Value.ToString("dddd", new CultureInfo("id-ID"))
-                        .Equals(hari, StringComparison.OrdinalIgnoreCase));
+            {
+                query = query
+                    .AsEnumerable()
+                    .Where(d => d.Tanggal.HasValue &&
+                        d.Tanggal.Value.ToString("dddd", new CultureInfo("id-ID"))
+                            .Equals(hari, StringComparison.OrdinalIgnoreCase))
+                    .AsQueryable(); // opsional kalau mau chaining
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
+            {
                 query = query.Where(d => !string.IsNullOrEmpty(d.NamaKegiatan) &&
-                                          d.NamaKegiatan.Contains(search, StringComparison.OrdinalIgnoreCase));
+                                         d.NamaKegiatan.ToLower().Contains(search.ToLower()));
+            }
+
+
+            // Filter minggu pakai GetWeekOfMonth => harus pakai AsEnumerable()
+            if (minggu.HasValue)
+            {
+                query = query
+                    .AsEnumerable()
+                    .Where(d => d.Tanggal.HasValue && GetWeekOfMonth(d.Tanggal.Value) == minggu.Value)
+                    .AsQueryable(); // opsional jika mau chaining lagi
+            }
 
             var result = query
                 .Where(d => d.Tanggal.HasValue)

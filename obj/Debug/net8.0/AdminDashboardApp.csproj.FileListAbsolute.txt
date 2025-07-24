@@ -717,3 +717,4 @@ C:\Users\LENOVO\OneDrive\Documents\Kuliah semester 6\Kerja Praktik\AdminDashboar
 C:\Users\LENOVO\OneDrive\Documents\Kuliah semester 6\Kerja Praktik\AdminDashboardApp6666\AdminDashboardApp\obj\Debug\net8.0\AdminDashboardApp.pdb
 C:\Users\LENOVO\OneDrive\Documents\Kuliah semester 6\Kerja Praktik\AdminDashboardApp6666\AdminDashboardApp\obj\Debug\net8.0\AdminDashboardApp.genruntimeconfig.cache
 C:\Users\LENOVO\OneDrive\Documents\Kuliah semester 6\Kerja Praktik\AdminDashboardApp6666\AdminDashboardApp\obj\Debug\net8.0\ref\AdminDashboardApp.dll
+C:\Users\LENOVO\OneDrive\Documents\Kuliah semester 6\Kerja Praktik\AdminDashboardApp6666\AdminDashboardApp\obj\Debug\net8.0\AdminDashboardApp.sourcelink.json
